@@ -1,42 +1,35 @@
 module View exposing (root)
 
 import Html exposing (Html)
-import Collage exposing (..)
+import Collage
 import Element
-import Color
+import Color exposing (Color)
 import Types exposing (..)
+import Heart
+import Lazy.List exposing (LazyList)
 
 
-heart : Float -> Form
-heart width =
-    let
-        size =
-            width * 0.585
+colors : LazyList Color
+colors =
+    [ Color.red
+    , Color.blue
+    , Color.green
+    ]
+        |> Lazy.List.fromList
+        |> Lazy.List.cycle
 
-        bump =
-            circle (size / 2) |> filled Color.red
 
-        leftBump =
-            bump
-                |> moveX (0 - (size / 2))
-
-        rightBump =
-            bump
-                |> moveY (size / 2)
-
-        body =
-            rect size size
-                |> filled Color.red
-    in
-        [ leftBump, rightBump, body ]
-            |> group
-            |> rotate (degrees -45)
-            |> moveY (0 - size * 0.07)
+coloredHeart : ( Color, Float ) -> Form
+coloredHeart =
+    uncurry Heart.heart
 
 
 root : Model -> Html msg
 root model =
-    [ heart 1000
-    ]
-        |> collage model.windowWidth model.windowHeight
+    [ 1000, 800, 600, 400, 200 ]
+        |> Lazy.List.fromList
+        |> Lazy.List.zip colors
+        |> Lazy.List.map coloredHeart
+        |> Lazy.List.toList
+        |> Collage.collage model.windowWidth model.windowHeight
         |> Element.toHtml

@@ -8,4 +8,8 @@ type Msg
 
 
 type alias Model =
-    { windowWidth : Int, windowHeight : Int }
+    { windowWidth : Int
+    , windowHeight : Int
+    , maxSize : Int
+    , heartSizes : List Float
+    }
