@@ -1,7 +1,7 @@
 module View exposing (root)
 
 import Html exposing (Html)
-import Collage
+import Collage exposing (Form)
 import Element
 import Color exposing (Color)
 import Types exposing (..)
@@ -26,7 +26,7 @@ coloredHeart =
 
 root : Model -> Html msg
 root model =
-    [ 1000, 800, 600, 400, 200 ]
+    model.heartSizes
         |> Lazy.List.fromList
         |> Lazy.List.zip colors
         |> Lazy.List.map coloredHeart

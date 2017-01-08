@@ -10,6 +10,6 @@ type Msg
 type alias Model =
     { windowWidth : Int
     , windowHeight : Int
-    , maxSize : Int
+    , windowCenterToCorner : Int
     , heartSizes : List Float
     }

@@ -5,6 +5,8 @@ import Window
 import Task
 import Types exposing (..)
 import View
+import List.Extra
+import HeartSize
 
 
 main : Program Never Model Msg
@@ -26,7 +28,7 @@ init =
         model =
             { windowWidth = 0
             , windowHeight = 0
-            , maxSize = 0
+            , windowCenterToCorner = 0
             , heartSizes = []
             }
     in
@@ -36,11 +38,24 @@ init =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        WindowSize { width, height } ->
-            { model
-                | windowWidth = width
-                , windowHeight = height
-                , maxSize = min width height
-                , heartSizes = [ 100, 200, 300, 400 ]
-            }
-                ! []
+        WindowSize sizes ->
+            windowSize sizes model ! []
+
+
+windowSize : { width : Int, height : Int } -> Model -> Model
+windowSize { width, height } model =
+    let
+        hyp =
+            hypotenuse width height
+    in
+        { model
+            | windowWidth = width
+            , windowHeight = height
+            , windowCenterToCorner = hyp
+            , heartSizes = HeartSize.list hyp
+        }
+
+
+hypotenuse : Int -> Int -> Int
+hypotenuse a b =
+    a ^ 2 + a ^ 2 |> toFloat |> sqrt |> ceiling
