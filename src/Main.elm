@@ -7,6 +7,7 @@ import Window
 import Task
 import Types exposing (..)
 import View
+import Theme
 import Heart
 import Heart.Stream
 
@@ -31,7 +32,7 @@ init =
             { windowWidth = 0
             , windowHeight = 0
             , windowHyp = 0
-            , heartStream = Heart.Stream.new
+            , heartStream = Heart.Stream.new Theme.pastelPurpleDawn
             , hearts = []
             }
     in

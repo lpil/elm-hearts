@@ -1,6 +1,27 @@
-module Themes exposing (..)
+module Theme exposing (..)
 
 import Color exposing (Color)
+import Random exposing (Generator)
+
+
+allThemes : List (List Color)
+allThemes =
+    [ pastelRainbow
+    , pastelRainbowPeach
+    , pastelPurpleDawn
+    , lightRainbow
+    ]
+
+
+randomTheme : Generator (List Color)
+randomTheme =
+    Random.int 0 (List.length allThemes - 1)
+        |> Random.map
+            (\i ->
+                List.drop i allThemes
+                    |> List.head
+                    |> Maybe.withDefault []
+            )
 
 
 {-| http://www.color-hex.com/color-palette/2922, mirrored

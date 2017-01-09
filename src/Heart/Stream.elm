@@ -3,19 +3,15 @@ module Heart.Stream exposing (new, safeNext)
 import Heart exposing (Heart)
 import Lazy.List exposing (LazyList)
 import Color exposing (Color)
-import Themes
+import Theme
 
 
-colorStream : LazyList Color
-colorStream =
-    Themes.pastelPurpleDawn
+new : List Color -> LazyList Heart
+new colors =
+    colors
         |> Lazy.List.fromList
         |> Lazy.List.cycle
-
-
-new : LazyList Heart
-new =
-    Lazy.List.map Heart.new colorStream
+        |> Lazy.List.map Heart.new
 
 
 safeNext : LazyList Heart -> ( Heart, LazyList Heart )
@@ -25,4 +21,4 @@ safeNext stream =
             headAndTail
 
         Nothing ->
-            safeNext new
+            Theme.pastelPurpleDawn |> new |> safeNext
