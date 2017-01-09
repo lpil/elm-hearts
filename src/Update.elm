@@ -46,4 +46,3 @@ windowSize { width, height } model =
             , windowHeight = height
             , windowHyp = hypotenuse
         }
-            |> newHeartTick

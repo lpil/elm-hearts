@@ -49,6 +49,7 @@ subscriptions model =
     [ AnimationFrame.times AnimationTick
     , Time.every (Time.second / 3) NewHeartTick
     , Time.every (Time.second * 7) NewThemeTick
+    , Window.resizes WindowSize
     ]
         |> Sub.batch
 
