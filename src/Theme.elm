@@ -13,8 +13,8 @@ allThemes =
     ]
 
 
-randomTheme : Generator (List Color)
-randomTheme =
+random : Generator (List Color)
+random =
     Random.int 0 (List.length allThemes - 1)
         |> Random.map
             (\i ->

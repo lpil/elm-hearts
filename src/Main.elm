@@ -3,12 +3,13 @@ module Main exposing (..)
 import Html exposing (Html)
 import AnimationFrame
 import Time
+import Random
 import Window
 import Task
 import Types exposing (..)
 import View
 import Theme
-import Heart
+import Update
 import Heart.Stream
 
 
@@ -24,25 +25,30 @@ main =
 
 init : ( Model, Cmd Msg )
 init =
-    let
-        cmd =
-            Task.perform WindowSize Window.size
+    { windowWidth = 0
+    , windowHeight = 0
+    , windowHyp = 0
+    , heartStream = Heart.Stream.new Theme.pastelPurpleDawn
+    , hearts = []
+    }
+        ! [ newThemeCmd, getWindowSizeCmd ]
 
-        model =
-            { windowWidth = 0
-            , windowHeight = 0
-            , windowHyp = 0
-            , heartStream = Heart.Stream.new Theme.pastelPurpleDawn
-            , hearts = []
-            }
-    in
-        ( model, cmd )
+
+newThemeCmd : Cmd Msg
+newThemeCmd =
+    Random.generate NewTheme Theme.random
+
+
+getWindowSizeCmd : Cmd Msg
+getWindowSizeCmd =
+    Task.perform WindowSize Window.size
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
     [ AnimationFrame.times AnimationTick
     , Time.every (Time.second / 3) NewHeartTick
+    , Time.every (Time.second * 7) NewThemeTick
     ]
         |> Sub.batch
 
@@ -51,48 +57,16 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         WindowSize sizes ->
-            windowSize sizes model ! []
+            Update.windowSize sizes model ! []
 
         NewHeartTick _ ->
-            newHeartTick model ! []
+            Update.newHeartTick model ! []
 
         AnimationTick time ->
-            animationFrame time model ! []
+            Update.animationFrame time model ! []
 
+        NewTheme theme ->
+            Update.newTheme theme model ! []
 
-animationFrame : Float -> Model -> Model
-animationFrame time model =
-    let
-        limit =
-            model.windowHyp * 3
-
-        hearts =
-            List.filterMap (Heart.limitedGrow limit) model.hearts
-    in
-        { model | hearts = hearts }
-
-
-newHeartTick : Model -> Model
-newHeartTick model =
-    let
-        ( heart, stream ) =
-            Heart.Stream.safeNext model.heartStream
-    in
-        { model
-            | hearts = (heart :: model.hearts)
-            , heartStream = stream
-        }
-
-
-windowSize : { width : Int, height : Int } -> Model -> Model
-windowSize { width, height } model =
-    let
-        hypotenuse =
-            width ^ 2 + height ^ 2 |> toFloat |> sqrt
-    in
-        { model
-            | windowWidth = width
-            , windowHeight = height
-            , windowHyp = hypotenuse
-        }
-            |> newHeartTick
+        NewThemeTick _ ->
+            model ! [ newThemeCmd ]
