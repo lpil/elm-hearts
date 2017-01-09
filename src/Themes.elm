@@ -41,3 +41,15 @@ pastelPurpleDawn =
     , Color.rgb 227 177 255
     , Color.rgb 239 181 255
     ]
+
+
+{-| http://www.color-hex.com/color-palette/12435
+-}
+lightRainbow : List Color
+lightRainbow =
+    [ Color.rgb 255 243 170
+    , Color.rgb 255 208 168
+    , Color.rgb 255 177 177
+    , Color.rgb 217 209 255
+    , Color.rgb 183 239 255
+    ]
