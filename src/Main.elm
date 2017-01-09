@@ -1,12 +1,14 @@
 module Main exposing (..)
 
 import Html exposing (Html)
+import AnimationFrame
+import Time
 import Window
 import Task
 import Types exposing (..)
 import View
-import List.Extra
-import HeartSize
+import Heart
+import Heart.Stream
 
 
 main : Program Never Model Msg
@@ -15,7 +17,7 @@ main =
         { init = init
         , view = View.root
         , update = update
-        , subscriptions = (\_ -> Sub.none)
+        , subscriptions = subscriptions
         }
 
 
@@ -28,11 +30,20 @@ init =
         model =
             { windowWidth = 0
             , windowHeight = 0
-            , windowCenterToCorner = 0
-            , heartSizes = []
+            , windowHyp = 0
+            , heartStream = Heart.Stream.new
+            , hearts = []
             }
     in
         ( model, cmd )
+
+
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    [ AnimationFrame.times AnimationTick
+    , Time.every (Time.second / 3) NewHeartTick
+    ]
+        |> Sub.batch
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -41,21 +52,46 @@ update msg model =
         WindowSize sizes ->
             windowSize sizes model ! []
 
+        NewHeartTick _ ->
+            newHeartTick model ! []
+
+        AnimationTick time ->
+            animationFrame time model ! []
+
+
+animationFrame : Float -> Model -> Model
+animationFrame time model =
+    let
+        limit =
+            model.windowHyp * 3
+
+        hearts =
+            List.filterMap (Heart.limitedGrow limit) model.hearts
+    in
+        { model | hearts = hearts }
+
+
+newHeartTick : Model -> Model
+newHeartTick model =
+    let
+        ( heart, stream ) =
+            Heart.Stream.safeNext model.heartStream
+    in
+        { model
+            | hearts = (heart :: model.hearts)
+            , heartStream = stream
+        }
+
 
 windowSize : { width : Int, height : Int } -> Model -> Model
 windowSize { width, height } model =
     let
-        hyp =
-            hypotenuse width height
+        hypotenuse =
+            width ^ 2 + height ^ 2 |> toFloat |> sqrt
     in
         { model
             | windowWidth = width
             , windowHeight = height
-            , windowCenterToCorner = hyp
-            , heartSizes = HeartSize.list hyp
+            , windowHyp = hypotenuse
         }
-
-
-hypotenuse : Int -> Int -> Int
-hypotenuse a b =
-    a ^ 2 + a ^ 2 |> toFloat |> sqrt |> ceiling
+            |> newHeartTick
